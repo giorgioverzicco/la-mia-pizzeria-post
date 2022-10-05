@@ -1,3 +1,4 @@
+using la_mia_pizzeria_post.Data;
 using la_mia_pizzeria_static.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -5,55 +6,24 @@ namespace la_mia_pizzeria_static.Controllers;
 
 public class PizzaController : Controller
 {
-    private readonly List<Pizza> _pizzas = new()
+    private readonly ApplicationDbContext _ctx;
+
+    public PizzaController(ApplicationDbContext ctx)
     {
-        new Pizza
-        {
-            Id = 1,
-            Name = "Margherita",
-            Description = "La classica pizza",
-            Photo = "margherita.png",
-            Price = 4.00M
-        },
-            
-        new Pizza
-        {
-            Id = 2,
-            Name = "Diavola",
-            Description = "La classica pizza piccante",
-            Photo = "diavola.png",
-            Price = 5.50M
-        },
-            
-        new Pizza
-        {
-            Id = 3,
-            Name = "Cotto",
-            Description = "La classica pizza con prosciutto cotto",
-            Photo = "cotto.png",
-            Price = 5.00M
-        },
-            
-        new Pizza
-        {
-            Id = 4,
-            Name = "Salsiccia",
-            Description = "La classica pizza con la salsiccia",
-            Photo = "salsiccia.png",
-            Price = 6.50M
-        },
-    };
-    
+        _ctx = ctx;
+    }
+
     // GET
     public IActionResult Index()
     {
-        return View(_pizzas);
+        List<Pizza> pizzas = _ctx.Pizzas.ToList();
+        return View(pizzas);
     }
 
     // GET: Pizza/Details/{id}
     public IActionResult Details(int id)
     {
-        Pizza? pizza = _pizzas.Find(x => x.Id == id);
+        Pizza? pizza = _ctx.Pizzas.FirstOrDefault(x => x.Id == id);
 
         if (pizza is null)
         {
@@ -61,5 +31,25 @@ public class PizzaController : Controller
         }
 
         return View(pizza);
+    }
+
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Create(Pizza pizza)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(pizza);
+        }
+
+        _ctx.Pizzas.Add(pizza);
+        _ctx.SaveChanges();
+
+        return RedirectToAction(nameof(Index));
     }
 }

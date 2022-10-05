@@ -1,3 +1,4 @@
+@using System.Globalization
 @model Pizza
 
 @{
@@ -12,7 +13,7 @@
           <h4 class="card-title">@Model.Name</h4>
           <p class="card-text">@Model.Description</p>
           <div class="d-flex justify-content-end align-items-center">
-            <small class="text-muted">@Model.Price.ToString("C")</small>
+            <small class="text-muted">@Model.Price.ToString("C", new CultureInfo("it-IT"))</small>
           </div>
         </div>
       </div>
